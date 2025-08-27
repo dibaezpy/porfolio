@@ -121,7 +121,9 @@ def cargar_datos(path: str, mtime: float):
     return df
 
 def _checklist_filter(label: str, options, key_prefix: str):
+    import streamlit as st
     opts = [str(o) for o in options]
+
     state_key    = f"{key_prefix}_selected"
     snapshot_key = f"{key_prefix}_snapshot"
 
@@ -130,10 +132,15 @@ def _checklist_filter(label: str, options, key_prefix: str):
         st.session_state[state_key] = set(opts)
         st.session_state[snapshot_key] = tuple(options)
 
-    pop = st.popover(f"{label}  ({len(st.session_state[state_key])}/{len(opts)})",
-                     use_container_width=True)
+    title = f"{label}  ({len(st.session_state[state_key])}/{len(opts)})"
 
-    with pop:
+    # popover si existe; si no, expander (compatible con 1.31.1)
+    if hasattr(st, "popover"):
+        container = st.popover(title, use_container_width=True)
+    else:
+        container = st.expander(title, expanded=False)
+
+    with container:
         all_selected_now = len(st.session_state[state_key]) == len(opts)
         sel_all = st.checkbox("Seleccionar todo", value=all_selected_now, key=f"{key_prefix}_all")
         if sel_all:
