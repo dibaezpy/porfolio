@@ -1,11 +1,17 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
+from pathlib import Path
 
 @st.cache_data
 def load_data():
-    return pd.read_excel("base.xlsx", engine="openpyxl")
+    path = Path(__file__).parent / "base.xlsx"
+    return pd.read_excel(path, engine="openpyxl")
 
 def show():
     st.title("P&L • base.xlsx")
-    df = load_data()
+    try:
+        df = load_data()
+    except Exception as e:
+        st.error(f"No pude leer 'base.xlsx'. Detalle: {type(e).__name__}: {e}")
+        return
     st.dataframe(df, use_container_width=True)
